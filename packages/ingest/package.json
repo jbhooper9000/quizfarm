@@ -1,0 +1,9 @@
+{
+  "name": "@quizfarm/ingest",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build-anchors": "node --experimental-strip-types src/build.ts"
+  }
+}

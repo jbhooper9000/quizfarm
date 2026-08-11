@@ -152,6 +152,23 @@ So every player needs territory, and finding or creating it is the gathering
 agent's job. The harvested niche questions aren't a flourish — champion mode
 does not function without them.
 
+**A Jeopardy-only anchor bank is good enough to start.** The bank it produces
+spans depth 2.80–5.16, so anyone deeper saturates — every probe comes back
+correct and the search runs off the top of the scale. That sounded fatal given
+the ±0.5 budget, but measuring it says otherwise:
+
+```
+no ceiling (best case)      spread  8.2%
+ceiling 5.16 (Jeopardy)     spread 11.2%     spec 27.1%, casu 15.9%
+ceiling 6.0                 spread  7.7%
+random selection (floor)    spread 41.3%
+```
+
+Saturation doesn't collapse the equaliser, it *tilts* it — under-rating deep
+players by about five points in their favour, because the selector hands them
+questions it wrongly believes are hard for them. Ship with it; adding deeper
+anchors is a refinement, not a blocker.
+
 **The 55–60% target was wrong.** In a four-player game ~42% is the better
 aim: a clear favourite at 1.7× chance who still loses most rounds to somebody.
 A champion winning 56% of the time makes the hidden role trivially solvable by
@@ -161,12 +178,51 @@ reading the scoreboard.
 
 ```
 packages/core/src/
-  domain.ts    taxonomy paths and asymmetric knowledge transfer
-  types.ts     Depth, Question, Profile — the shared vocabulary
-  predict.ts   the core probability model
-  sanity.ts    readout proving the model behaves as designed
+  domain.ts       taxonomy paths and asymmetric knowledge transfer
+  types.ts        Depth, Question, Profile — the shared vocabulary
+  predict.ts      the core probability model
+  select.ts       policies that turn predictions into a round
+  simulate.ts     synthetic players and round play
+  sanity.ts       readout proving the model behaves as designed
+  experiments/    tuning, champion diagnosis, anchor ceiling
+
+packages/ingest/src/
+  value-depth.ts  Jeopardy board position -> depth estimate
+  categories.ts   58k freeform categories -> our taxonomy
+  jeopardy.ts     streaming TSV reader with quality filters
+  build.ts        assembles and reports on the anchor bank
 ```
 
 ```bash
-node --experimental-strip-types packages/core/src/sanity.ts
+cd packages/core && npm install
+npm run sanity     # model behaviour readout
+npm run tune       # selector tuning (~2.5 min)
 ```
+
+## Building the anchor bank
+
+The Jeopardy dump is a fan scrape of copyrighted broadcast content, so it is
+**not committed here** — fetch it yourself and generate locally.
+
+```bash
+curl -sSLO https://raw.githubusercontent.com/jwolle1/jeopardy_clue_dataset/main/combined_season1-42.tsv
+cd packages/ingest
+node --experimental-strip-types src/build.ts ../../combined_season1-42.tsv anchors.json
+```
+
+544k clues in, ~3,400 anchors out across 59 domains, in about ten seconds.
+Two gates do the filtering, both biased hard toward precision because
+coverage is irrelevant — we need hundreds of anchors and the corpus has half a
+million clues:
+
+1. **Keyword rules** over category text, ordered specific-first. Every loose
+   keyword has been paid for once: a bare `\bSTARS?\b` mapped to astronomy
+   produced an "astronomy" anchor about Led Zeppelin and another whose answer
+   was "starboard". In this corpus `STARS` nearly always means celebrities.
+2. **Repetition.** Only categories the show has used 20+ times are trusted. A
+   frequently-reused category is a literal label; a one-off is usually a pun,
+   and a pun containing a keyword is precisely how nonsense enters the bank.
+
+Distractors are sampled from other answers in the same domain, matched on
+shape (number / proper noun / common noun) and length. Matching length alone
+offered "4" and "35" as alternatives to Richard Nixon.

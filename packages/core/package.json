@@ -8,9 +8,5 @@
     "typecheck": "tsc --noEmit",
     "sanity": "node --experimental-strip-types src/sanity.ts",
     "tune": "node --experimental-strip-types src/experiments/tuning.ts"
-  },
-  "devDependencies": {
-    "@types/node": "^22.20.1",
-    "typescript": "^5.6.0"
   }
 }
