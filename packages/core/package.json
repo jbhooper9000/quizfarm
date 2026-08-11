@@ -6,7 +6,8 @@
   "main": "./src/index.ts",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "sanity": "node --experimental-strip-types src/sanity.ts"
+    "sanity": "node --experimental-strip-types src/sanity.ts",
+    "tune": "node --experimental-strip-types src/experiments/tuning.ts"
   },
   "devDependencies": {
     "@types/node": "^22.20.1",

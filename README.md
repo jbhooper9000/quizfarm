@@ -113,6 +113,50 @@ supplies the fact, the model shapes the question — long-tail niches are exactl
 where models confabulate and exactly where the one person who'd notice is
 sitting in the room.
 
+## What simulation has settled so far
+
+Synthetic players, 20 questions, 3000 rounds per configuration. Crucially the
+selector only ever sees *estimated* profiles while answers are generated from
+the *true* ones — otherwise you're just checking arithmetic against itself.
+
+**Equalisation works, and the problem it solves is real.**
+
+```
+random selection      gene 50.6%  spec  9.2%  enth 26.5%  casu  9.6%   spread 41.4%
+equalised selection   gene 25.4%  spec 22.2%  enth 24.9%  casu 21.6%   spread  3.9%
+```
+
+**The gathering agent needs to measure depth to within about half a level.**
+Sigma is measurement error in depth units; recovery is how much of the gap
+between random and perfect equalisation survives.
+
+| sigma | spread | recovered |
+| --- | --- | --- |
+| 0.0 | 3.9% | 100% |
+| 0.5 | 10.0% | 84% |
+| 1.0 | 25.0% | 44% |
+| 1.5 | 34.6% | 18% |
+| 2.0 | 40.3% | 3% |
+
+At sigma 2.0 the selector may as well be picking at random. This is the
+argument for probing with calibrated anchors rather than asking people to
+rate themselves — self-report is nowhere near ±0.5.
+
+**Selection cannot manufacture an advantage that isn't there.** Champion mode
+tops out at 25.9% for a player with no isolated domain, even with every
+question tilted their way — a "specialty" at depth 4.2 is shallower than a
+generalist's breadth of 5.0, so no question in the pool is theirs. Give the
+same player one genuinely isolated domain and tilt 0.5 reaches 41.9%.
+
+So every player needs territory, and finding or creating it is the gathering
+agent's job. The harvested niche questions aren't a flourish — champion mode
+does not function without them.
+
+**The 55–60% target was wrong.** In a four-player game ~42% is the better
+aim: a clear favourite at 1.7× chance who still loses most rounds to somebody.
+A champion winning 56% of the time makes the hidden role trivially solvable by
+reading the scoreboard.
+
 ## Repo layout
 
 ```
