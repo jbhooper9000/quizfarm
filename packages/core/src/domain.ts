@@ -48,7 +48,21 @@ function commonPrefixLength(a: string[], b: string[]): number {
  * should be fitted rather than chosen.
  */
 export const TRANSFER_TOWARD_ROOT = 0.9;
-export const TRANSFER_AWAY_FROM_ROOT = 0.7;
+export const TRANSFER_AWAY_FROM_ROOT = 0.78;
+
+/**
+ * Extra damping when two domains share nothing but their top-level category.
+ *
+ * The top level is a filing label, not a domain. Nobody knows "sport" or
+ * "music" as a unit — knowledge clusters one or two levels down, around
+ * things like football or Britpop. Without this, an obsessive follower of
+ * lower-league football reads as knowing a fair amount about rugby, purely
+ * because both files under `sport`.
+ *
+ * This was the dominant source of error in the first fit, and it is why
+ * questions may not be tagged at the top level (see assertQuestionDomain).
+ */
+export const ROOT_CROSSING_PENALTY = 0.45;
 
 export function transfer(from: DomainPath, to: DomainPath): number {
   const a = segments(from);
@@ -62,9 +76,23 @@ export function transfer(from: DomainPath, to: DomainPath): number {
   const up = a.length - shared;
   const down = b.length - shared;
 
-  return (
-    Math.pow(TRANSFER_TOWARD_ROOT, up) * Math.pow(TRANSFER_AWAY_FROM_ROOT, down)
-  );
+  const t =
+    Math.pow(TRANSFER_TOWARD_ROOT, up) * Math.pow(TRANSFER_AWAY_FROM_ROOT, down);
+
+  const crossesRoot = shared === 1 && b.length > 1;
+  return crossesRoot ? t * ROOT_CROSSING_PENALTY : t;
+}
+
+/**
+ * Questions must be tagged at least two levels deep.
+ *
+ * A question tagged `sport` is unanswerable as a design object: there is no
+ * such thing as being deep in "sport", so no depth we assign it means
+ * anything, and every specialist in every branch would read as partially
+ * qualified to answer it. Enforced at ingest, when tagging the bank.
+ */
+export function isValidQuestionDomain(path: DomainPath): boolean {
+  return segments(path).length >= 2;
 }
 
 export function isAncestorOf(ancestor: DomainPath, descendant: DomainPath): boolean {

@@ -81,7 +81,7 @@ for (const dom of [
   "sport/football/english/championship",
   "sport/football/english",
   "sport/football",
-  "sport",
+  "sport/tennis",
   "sport/rugby",
   "sport/football/spanish",
 ]) {
