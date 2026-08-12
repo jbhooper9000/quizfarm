@@ -174,6 +174,11 @@ aim: a clear favourite at 1.7× chance who still loses most rounds to somebody.
 A champion winning 56% of the time makes the hidden role trivially solvable by
 reading the scoreboard.
 
+## Documentation
+
+- [`docs/design.md`](docs/design.md) — why the game works the way it does
+- [`docs/status.md`](docs/status.md) — where the build is, what is blocked, what is next
+
 ## Repo layout
 
 ```
